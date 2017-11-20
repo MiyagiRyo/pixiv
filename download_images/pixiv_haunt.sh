@@ -9,7 +9,7 @@ setDIRECTORY_PATH(){
   if [ $# = 1 ]; then
     DIRECTORY_PATH="."
   elif [ $# = 2 ]; then
-    if [ ${2:0:1} = "/" ]; then
+    if [ ${2:0:1} = "/" -o ${2:0:1} = "~" ]; then
       DIRECTORY_PATH=$2
     else
       DIRECTORY_PATH="./"$2
