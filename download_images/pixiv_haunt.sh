@@ -6,13 +6,19 @@ HTML_SOURCE=""
 
 #引数から作業場所を変数に格納する
 setDIRECTORY_PATH(){
-  if [ $# = 1 ]; then
-    DIRECTORY_PATH="."
-  elif [ $# = 2 ]; then
-    if [ ${2:0:1} = "/" -o ${2:0:1} = "~" ]; then
+  if [ $# = 1 ]; then    #パス指定がない場合
+    DIRECTORY_PATH="."     #カレントディレクトリに設定
+  elif [ $# = 2 ]; then  #パス指定がある場合
+    #絶対パス指定または ~/hoge , ./hoge指定の場合
+    if [ ${2:0:1} = "/" -o ${2:0:1} = "~" -o ${2:0:2} = "./" ]; then
       DIRECTORY_PATH=$2
+    #上記以外の相対パス指定の場合
     else
       DIRECTORY_PATH="./"$2
+    fi
+    #パスの終末を"/"にする(表記の統一)
+    if [ ${DIRECTORY_PATH:${#DIRECTORY_PATH}-1} != "/" ]; then
+      DIRECTORY_PATH=$DIRECTORY_PATH"/"
     fi
   else
     echo "---- BAD ARGUMENTS! ----"
@@ -39,11 +45,11 @@ setDirectory(){
   title=`getTitle`
   if [ -n "`ls | grep $title`" ]; then
     echo "  directory \" $title \" already exists."
-    title=$title"-""`date +%T.%N`"
+    title=$title"_""`date +%T.%N`"
     echo "  so now make directory name with timestanp."
   fi
   mkdir $title && cd $_
-  echo "make new dirctory \" $DIRECTORY_PATH/$title \"."
+  echo "make new dirctory \" $DIRECTORY_PATH$title \"."
 }
 
 #各画像のURLを取得
@@ -69,13 +75,13 @@ downloadImages(){
 
 #メイン関数
 main(){
-  #作業ディレクトリの特定とその値を変数に格納する
+  #作業ディレクトリの特定とその値を変数に格納
   setDIRECTORY_PATH $@
-  #対象作品のページからHTML文を取得する
+  #対象作品のページからHTML文を取得
   getHTMLSource $1
-  #画像の保存先のディレクトリの作成と移動する
+  #画像の保存先のディレクトリの作成と移動
   setDirectory
-  #画像をダウンロードする
+  #画像をダウンロード
   downloadImages $1
   exit 0
 }
